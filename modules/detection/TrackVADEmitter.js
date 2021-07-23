@@ -165,7 +165,7 @@ export default class TrackVADEmitter extends EventEmitter {
         //predictedAudioData=predictedAudioData.slice(blockLen,predictedAudioData.length);
         if (!model) { return; }
         const prediction = await model_utils.predict(inputBuffer.getChannelData(0), model);
-        console.log(prediction);
+        console.info(prediction);
     }
     /**
      * Connects the nodes in the AudioContext to start the flow of audio data.
