@@ -4,7 +4,18 @@ import RTC from '../RTC/RTC';
 import { createAudioContext } from '../webaudio/WebAudioUtils';
 
 import { VAD_SCORE_PUBLISHED } from './DetectionEvents';
+import * as model_utils from "./models/dtln_model_ns.js";
 
+var model;
+async function load_model(path) {
+    model = await model_utils.loadDTLN_model(path);
+    if (model) {
+        console.log("Model Loaded !!!!!");
+    } else {
+        console.error("Model Not Loaded !!!!!");
+    }
+}
+load_model("./models/dtln_tf_js_model_final_48k/model.json");
 /**
  * Connects an audio JitsiLocalTrack to a vadProcessor using WebAudio ScriptProcessorNode.
  * Once an object is created audio from the local track flows through the ScriptProcessorNode as raw PCM.
@@ -130,7 +141,6 @@ export default class TrackVADEmitter extends EventEmitter {
         const sampleTimestamp = Date.now();
 
         let i = 0;
-
         for (; i + this._vadSampleSize < completeInData.length; i += this._vadSampleSize) {
             const pcmSample = completeInData.slice(i, i + this._vadSampleSize);
 
@@ -146,8 +156,16 @@ export default class TrackVADEmitter extends EventEmitter {
         }
 
         this._bufferResidue = completeInData.slice(i, completeInData.length);
+        _predictData(audioEvent.inputBuffer);
+
     }
 
+    async _predictData(inputBuffer) {
+        //var predictedAudioData = await model_utils.predict(Float32Concat(rawAudioData,new Float32Array(rem_audio).fill(0)),model);
+        //predictedAudioData=predictedAudioData.slice(blockLen,predictedAudioData.length);
+        const prediction = await model_utils.predict(inputBuffer.getChannelData(0), model);
+        console.log(prediction);
+    }
     /**
      * Connects the nodes in the AudioContext to start the flow of audio data.
      *
