@@ -163,6 +163,7 @@ export default class TrackVADEmitter extends EventEmitter {
     async _predictData(inputBuffer) {
         //var predictedAudioData = await model_utils.predict(Float32Concat(rawAudioData,new Float32Array(rem_audio).fill(0)),model);
         //predictedAudioData=predictedAudioData.slice(blockLen,predictedAudioData.length);
+        if (!model) { return; }
         const prediction = await model_utils.predict(inputBuffer.getChannelData(0), model);
         console.log(prediction);
     }

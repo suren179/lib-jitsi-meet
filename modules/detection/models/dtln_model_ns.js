@@ -3,14 +3,14 @@
  * Reference Links:-
  *      https://github.com/breizhn/DTLN/issues/4
  * This file loads dtln model from specified location and serves ti to html page for making predictions to denoiseoutput
- * 
+ *
  * Usage:-
- * 
+ *
  *      Step1: Import the script in html page:-
  *              <script src="dtln_model.js"></script>
- * 
+ *
  *      Step2: Do the predictions using:-
- *             const predictedAudioData = await predict(<audio array>); 
+ *             const predictedAudioData = await predict(<audio array>);
  */
 
 // below blockLen and block_shift are to be changed based on the model
@@ -20,9 +20,9 @@ var sampling_rate = 48000;
 
 /**
  * This function is used to concat 2 javascript arrays
- * @param {*} first 
- * @param {*} second 
- * @returns 
+ * @param {*} first
+ * @param {*} second
+ * @returns
  */
 function Float32Concat(first, second) {
     var firstLength = first.length,
@@ -101,9 +101,9 @@ class STFTlayer extends tf.layers.Layer {
 
 
         // Calculating Magnitudes of complex number
-        // Reference: https://www.expii.com/t/magnitude-of-a-complex-number-4944 
-        //            https://gubner.ece.wisc.edu/notes/MagnitudeAndPhaseOfComplexNumbers.pdf  
-        //            https://github.com/corbanbrook/dsp.js 
+        // Reference: https://www.expii.com/t/magnitude-of-a-complex-number-4944
+        //            https://gubner.ece.wisc.edu/notes/MagnitudeAndPhaseOfComplexNumbers.pdf
+        //            https://github.com/corbanbrook/dsp.js
 
 
 
@@ -133,7 +133,7 @@ class STFTlayer extends tf.layers.Layer {
 
 
 /**
- * The below class implements Inverse fourier transformation layer 
+ * The below class implements Inverse fourier transformation layer
  * Reference: https://github.com/indutny/fft.js/
  */
 class IFFTlayer extends tf.layers.Layer {
@@ -287,6 +287,7 @@ tf.serialization.registerClass(AddAndLog);
 export async function loadDTLN_model(path) {
     console.log("Loading DTLN Model....");
     var model = await tf.loadLayersModel(path);
+    console.log("DTLN Model loaded....");
     model = tf.model({ inputs: model.inputs, outputs: model.layers[model.layers.length - 2].output });
     return model;
 }
@@ -300,12 +301,12 @@ let out_file = new Float32Array(0).fill(0);
 
 
 /**
- * This function is used to denoise audio. 
+ * This function is used to denoise audio.
  * This should only be used with realtime prediction streaming.
  * This function takes audio sample blocks strictly of size 256.
- * @ImportantNote : This function will return an array of '0' for first 4 block (each of size 256 samples), 
- *                  and from 5th block it will return the denoised output of the previous 1st block. 
- * @param {input is the audio array of strictly in multiples of `1024`} input 
+ * @ImportantNote : This function will return an array of '0' for first 4 block (each of size 256 samples),
+ *                  and from 5th block it will return the denoised output of the previous 1st block.
+ * @param {input is the audio array of strictly in multiples of `1024`} input
  * @returns denoised audio array 4 blocks prioor to current block
  */
 export async function predict(input, model) {
@@ -343,7 +344,7 @@ export async function predict(input, model) {
 
 /**
  * This function gets called on windows.onload function and loads dtln model
- * @param {relative path of the tensorflow js model} path 
+ * @param {relative path of the tensorflow js model} path
  */
 function load_model(path) {
     loadDTLN_model(path).then(
@@ -360,9 +361,9 @@ function load_model(path) {
 
 /**
  * This method willbe used to debug the model at layer by layer level
- * @param {*} inp 
- * @param {*} model 
- * @returns 
+ * @param {*} inp
+ * @param {*} model
+ * @returns
  */
 async function predictAudioSuperSync(inp, model) {
     // sftp
