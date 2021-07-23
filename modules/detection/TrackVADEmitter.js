@@ -25,7 +25,7 @@ export default class TrackVADEmitter extends EventEmitter {
      */
     constructor(procNodeSampleRate, vadProcessor, jitsiLocalTrack) {
         super();
-
+        console.log("VAD Emitter: Constructor");
         /**
          * Sample rate of the ScriptProcessorNode.
          */
