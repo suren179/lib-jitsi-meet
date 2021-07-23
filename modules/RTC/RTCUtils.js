@@ -26,6 +26,20 @@ import Listenable from '../util/Listenable';
 import screenObtainer from './ScreenObtainer';
 
 const logger = getLogger(__filename);
+var audioCtx = new AudioContext({
+  sampleRate: 44100,
+});
+
+// load in an audio track via XHR and decodeAudioData
+
+let processedAudioStream, processedAudioTrack;
+let onAudioProcessingEvent = async (audioProcessingEvent) => {
+    var inputBuffer = audioProcessingEvent.inputBuffer;
+    console.info(audioProcessingEvent.inputBuffer);
+    let predictions = await predict(inputBuffer.getChannelData(0));
+
+    // push to processedAudioStream
+};
 
 // Require adapter only for certain browsers. This is being done for
 // react-native, which has its own shims, and while browsers are being migrated
@@ -690,6 +704,19 @@ class RTCUtils extends Listenable {
             return this._getUserMedia(requestedCaptureDevices, constraints, timeout);
         }.bind(this);
 
+        const listenAudioDevice = function() {
+            var source;
+          console.log("trying to get audio");
+          source = audioCtx.createMediaStreamSource(stream);
+          console.log("get audio");
+          // When the buffer source stops playing, disconnect everything
+          source.onended = function () {
+              source.disconnect(scriptNode);
+              scriptNode.disconnect(audioCtx.destination);
+          };
+          source.connect(scriptNode);
+          scriptNode.connect(audioCtx.destination);
+        }.bind(this);
         /**
          * Splits the passed in media stream into separate audio and video
          * streams and creates meta data objects for each and pushes them to the
@@ -707,13 +734,32 @@ class RTCUtils extends Listenable {
             const audioTracks = avStream.getAudioTracks();
 
             if (audioTracks.length) {
-                const audioStream = new MediaStream(audioTracks);
+                const audioOriginalStream = new MediaStream(audioTracks);
 
+                var scriptNode = audioCtx.createScriptProcessor(4096, 1, 1);
+                scriptNode.onaudioprocess = onAudioProcessingEvent;
+                var source = audioCtx.createMediaStreamSource(audioOriginalStream);
+                source.connect(processor);
+                processor.connect(context.destination);
+
+                // When the buffer source stops playing, disconnect everything
+                source.onended = function () {
+                    source.disconnect(scriptNode);
+                    scriptNode.disconnect(audioCtx.destination);
+                };
+
+
+
+                var myAudioDest = new MediaStreamAudioDestinationNode(audioCtx);
+                processedAudioStream = myAudioDest.stream;
                 mediaStreamsMetaData.push({
-                    stream: audioStream,
-                    track: audioStream.getAudioTracks()[0],
-                    effects: otherOptions.effects
+                    stream: processedAudioStream,
+                    track: processedAudioStream.getAudioTracks()[0],
+                    effects: otherOptions.effects,
                 });
+
+
+
             }
 
             const videoTracks = avStream.getVideoTracks();
