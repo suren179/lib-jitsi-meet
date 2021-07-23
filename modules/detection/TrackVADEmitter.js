@@ -156,7 +156,7 @@ export default class TrackVADEmitter extends EventEmitter {
         }
 
         this._bufferResidue = completeInData.slice(i, completeInData.length);
-        _predictData(audioEvent.inputBuffer);
+        this._predictData(audioEvent.inputBuffer);
 
     }
 
