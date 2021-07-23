@@ -15,7 +15,7 @@ async function load_model(path) {
         console.error("Model Not Loaded !!!!!");
     }
 }
-load_model("./models/dtln_tf_js_model_final_48k/model.json");
+load_model("/static/models/dtln_tf_js_model_final_48k/model.json");
 /**
  * Connects an audio JitsiLocalTrack to a vadProcessor using WebAudio ScriptProcessorNode.
  * Once an object is created audio from the local track flows through the ScriptProcessorNode as raw PCM.
